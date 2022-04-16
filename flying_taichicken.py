@@ -5,7 +5,7 @@ from taichi.math import *
 scene = Scene(exposure=10)
 scene.set_floor(-1, (1.0, 1.0, 1.0)) # height, color
 scene.set_background_color((1, 1, 1))
-scene.set_direction_light((1,1,1), 0.1, (.003, .003, .003)) # direction, noise, color
+scene.set_direction_light((1,1,1), 0.1, (.3, .3, .3)) # direction, noise, color
 
 @ti.func
 def sphere(pos, r, mat, color): # pos: vec3, r: i32, mat: 0/1, color: list
@@ -34,13 +34,13 @@ def chicken(pos): # pos: vec3
     box(vec3(0,10,10)+pos, vec3(10,10,10), 1, white)
     # Wings
     # box(vec3(0,0,3)+pos, [15, 6, 15], 1, grey)  # Closed wings
-    box(vec3(0,0,3)+pos, [25, 2, 15], 2, grey)  # Flying wings
+    box(vec3(0,0,3)+pos, [25, 2, 15], 1, grey)  # Flying wings
     # Eyes
     box(vec3(0,12,12)+pos, [10,2,2], 1, black)
     # Head
-    box(vec3(0,16,11)+pos, [2,2,6], 2, red)
+    box(vec3(0,16,11)+pos, [2,2,6], 1, red)
     # Beak
-    box(vec3(0,10,16)+pos, [2,6,6], 2, yellow)
+    box(vec3(0,10,16)+pos, [2,6,6], 1, yellow)
     # Standing Legs
     # box(vec3(-4,-8,5)+pos, [1,6,2], 1, red)
     # box(vec3(3,-8,5)+pos, [1,6,2], 1, red)
@@ -66,15 +66,7 @@ def cloud(pos):
     sphere(vec3(4,0,-4)+pos, 4, 1, [.8,.8,.8])
     sphere(vec3(0,0,4)+pos, 4, 1, [.8,.8,.8])
     sphere(vec3(4,0,4)+pos, 4, 1, [.8,.8,.8])    
-
-
-@ti.func
-def star(pos):
-    box(pos, [1.,1.,1.], 2, [1., 1., 1.])
-
-@ti.func
-def moon(pos):
-    sphere(pos, 8, 2, [.9, .9, .9])
+    
             
 @ti.kernel
 def initialize_voxels():
@@ -91,15 +83,7 @@ def initialize_voxels():
 
     cloud(vec3(20,20,55))
     cloud(vec3(20,28,-55))
-    cloud(vec3(-20,10,-55))
-
-    star(vec3(20,60,20))
-    star(vec3(20,60,40))
-    star(vec3(-20,60,20))
-    star(vec3(10,55,20))
-    star(vec3(-20,60,30))        
-
-    moon(vec3(-50,50,-50))
+    cloud(vec3(-20,10,-55))    
     
     wave()
 
