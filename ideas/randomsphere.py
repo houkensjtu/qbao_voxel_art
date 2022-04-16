@@ -17,10 +17,10 @@ def sphere(pos, r, mat, color):
 def initialize_voxels():
     # Your code here! :-)
     # scene.set_voxel(vec3(0, 10, 0), 2, vec3(0.9, 0.1, 0.1))    # idx, mat, color
-    for s in range(128):
+    for s in range(64):
         pos = [(ti.random()-0.5)*128, (ti.random()-0.5)*128, (ti.random()-0.5)*128]
-        sphere(pos, ti.random()*15 , 1, vec3(ti.random(), ti.random(), ti.random()))
-
+        mat = 1
+        sphere(pos, ti.random()*15 , mat, vec3(ti.random(), ti.random(), ti.random()))
 
 initialize_voxels()
 
