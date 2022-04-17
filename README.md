@@ -13,12 +13,15 @@ to install the dependendies of the voxel renderer.
 Please fill in your code in `main.py` and include your result in this README.md file.
 
 ## Demo
-![](./demo.jpg)
+
+A voxel-art style Taichi logo. Feel free to try out my other prototypes, too!
+![](./demo-light.jpg)
+![](./demo-dark.jpg)
 
 ## Quickstart
 
 ```sh
-python3 example1.py  # example2/3/4.py
+python3 main.py
 ```
 
 Mouse and keyboard interface:

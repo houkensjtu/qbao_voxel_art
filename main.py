@@ -2,107 +2,93 @@ from scene import Scene
 import taichi as ti
 from taichi.math import *
 
-scene = Scene(exposure=10)
-scene.set_floor(-1, (1.0, 1.0, 1.0)) # height, color
-scene.set_background_color((1, 1, 1))
-scene.set_direction_light((1,1,1), 0.1, (.003, .003, .003)) # direction, noise, color
-
+dark_mode = 0 # 0 for light-mode; 1 for dark-mode
+scene = Scene(exposure=6)
+scene.set_floor(-1, (1., 1., 1.)) # height, color
+scene.set_background_color((1., 1., 1.))
+if dark_mode:
+    scene.set_directional_light((.8,1.,.8), 0.1, (.01, .01, .01)) # direction, noise, color
+else:
+    scene.set_directional_light((.8,1.,.8), 0.1, (.3, .3, .3)) # direction, noise, color
+    
 @ti.func
-def sphere(pos, r, mat, color): # pos: vec3, r: i32, mat: 0/1, color: list
-    for i,j,k in ti.ndrange((-64,64),(-64,64),(-64,64)):
-        if (i-pos[0])**2 + (j-pos[1])**2 + (k-pos[2])**2 < r*r:
+def sphere(pos, r, mat, color): # Make a sphere at pos with radius = r
+    for i,j,k in ti.ndrange((-64, 64), (-64, 64), (-64, 64)):
+        if (i - pos[0])**2 + (j - pos[1])**2 + (k - pos[2])**2 < r*r:
             scene.set_voxel(vec3(i,j,k), mat, color)
-
-@ti.func
-def box(pos, size, mat, color):
-    for i,j,k in ti.ndrange((-64,64),(-64,64),(-64,64)):
-        if ti.abs(i-pos[0]) <= size[0]/2 \
-           and ti.abs(j-pos[1]) <= size[1]/2 \
-           and ti.abs(k-pos[2]) <= size[2]/2:
-            scene.set_voxel(vec3(i,j,k), mat, color)
-
-@ti.func
-def chicken(pos): # pos: vec3
-    white = [.4,.4,.4]
-    grey  = [.2,.2,.2]
-    black = [.05,.05,.05]    
-    red   = [.25,.0,.0]
-    yellow= [.4,.3,.0]    
-    # Body
-    box(vec3(0,0,0)+pos, vec3(10,10,10), 1, white)
-    box(vec3(0,0,10)+pos, vec3(10,10,10), 1, white)
-    box(vec3(0,10,10)+pos, vec3(10,10,10), 1, white)
-    # Wings
-    # box(vec3(0,0,3)+pos, [15, 6, 15], 1, grey)  # Closed wings
-    box(vec3(0,0,3)+pos, [25, 2, 15], 2, grey)  # Flying wings
-    # Eyes
-    box(vec3(0,12,12)+pos, [10,2,2], 1, black)
-    # Head
-    box(vec3(0,16,11)+pos, [2,2,6], 2, red)
-    # Beak
-    box(vec3(0,10,16)+pos, [2,6,6], 2, yellow)
-    # Standing Legs
-    # box(vec3(-4,-8,5)+pos, [1,6,2], 1, red)
-    # box(vec3(3,-8,5)+pos, [1,6,2], 1, red)
-    # box(vec3(-4,-12,6)+pos, [4,1,12], 1, red)
-    # box(vec3(4,-12,6)+pos, [4,1,12], 1, red)        
-    # Streching Legs
-    box(vec3(-4,0,-6)+pos, [1,2,2], 1, red)
-    box(vec3(3,0,-6)+pos, [1,2,2], 1, red)
-    box(vec3(-4,0,-9)+pos, [4,1,4], 1, red)
-    box(vec3(3,0,-9)+pos, [4,1,4], 1, red)        
-
-@ti.func
-def wave():
-    for i,j,k in ti.ndrange((-64,64),(-64,64),(-64,64)):
-        if k < 7*ti.sin(ti.cast(i, ti.f32)/50*3.14)*ti.sin(ti.cast(j, ti.f32)/45*3.14)-35:
-            scene.set_voxel(vec3(i,k,j), 1, (0.3,.5,1.))            
-
-@ti.func
-def cloud(pos):
-    sphere(vec3(0,0,0)+pos, 4, 1, [.8,.8,.8])
-    sphere(vec3(0,0,-4)+pos, 4, 1, [.8,.8,.8])
-    sphere(vec3(4,0,0)+pos, 4, 1, [.8,.8,.8])
-    sphere(vec3(4,0,-4)+pos, 4, 1, [.8,.8,.8])
-    sphere(vec3(0,0,4)+pos, 4, 1, [.8,.8,.8])
-    sphere(vec3(4,0,4)+pos, 4, 1, [.8,.8,.8])    
-
-
-@ti.func
-def star(pos):
-    box(pos, [1.,1.,1.], 2, [1., 1., 1.])
-
-@ti.func
-def moon(pos):
-    sphere(pos, 8, 2, [.9, .9, .9])
             
+@ti.func
+def box(pos, size, mat, color): # Make a box at pos
+    for i,j,k in ti.ndrange((-64, 64), (-64, 64), (-64, 64)):
+        if ti.abs(i - pos[0]) <= size[0] / 2 and ti.abs(j - pos[1]) <= size[1] / 2 \
+           and ti.abs(k - pos[2]) <= size[2] / 2:
+            scene.set_voxel(vec3(i,j,k), mat, color)
+
+@ti.func
+def wave(): # Make a wave base for the scene
+    for i,j,k in ti.ndrange((-64, 64), (-64, 64), (-64, 64)):
+        h = 7*ti.sin(ti.cast(i, ti.f32)/50*3.14)*ti.sin(ti.cast(j, ti.f32)/45*3.14)-35
+        if k < h and k > -63:
+            scene.set_voxel(vec3(i,k,j), 1, (0.42,.62,1.))
+            
+@ti.func
+def lighting_bulb(r, num, dark_mode): # Make num lighting bulbs of size r on the wave
+    white = vec3(1., 1., 1.)
+    black = vec3(0.15, 0.15, 0.15)
+    for b in range(num):
+        x = (128-2*r) * (ti.random() - 0.5)
+        y = (128-2*r) * (ti.random() - 0.5)
+        z = 7*ti.sin(ti.cast(x, ti.f32)/50*3.14)*ti.sin(ti.cast(y, ti.f32)/45*3.14)-35
+        pos = vec3(x, z, y)
+        if b % 2 == 0:
+            if dark_mode:
+                sphere(pos, r, 2, white)
+            else:
+                sphere(pos, r, 1, white)                
+        else:
+            sphere(pos, r, 1, black)
+
 @ti.kernel
 def initialize_voxels():
-    # Your code here! :-)
-    # scene.set_voxel(vec3(0, 10, 0), 2, vec3(0.9, 0.1, 0.1))    # idx, mat, color
-    chicken(vec3(25,-34,40))
-    chicken(vec3(30,-40,-25))
-    chicken(vec3(-50,-34,-30))
-    chicken(vec3(-40,-34,45))
-
-    chicken(vec3(-40,20,45))
-    chicken(vec3(30,25,25))
-    chicken(vec3(-28,30,-15))
-
-    cloud(vec3(20,20,55))
-    cloud(vec3(20,28,-55))
-    cloud(vec3(-20,10,-55))
-
-    star(vec3(20,60,20))
-    star(vec3(20,60,40))
-    star(vec3(-20,60,20))
-    star(vec3(10,55,20))
-    star(vec3(-20,60,30))        
-
-    moon(vec3(-50,50,-50))
-    
+    r = 30
+    white = vec3(1., 1., 1.) # Color must be floats
+    black = vec3(0.1, 0.1, 0.1)
+    for t in range(r): # Make the Taichi logo
+        tt = ti.cast(t, ti.f32) / r * 3.14
+        x = ti.cast(32 * ti.sin(tt), ti.i32)
+        y = ti.cast(32 * ti.cos(tt), ti.i32) + r/2 + 10
+        z = 0.
+        if t == r-1:
+            sphere(vec3(x,y,z), t*0.6, 1, white)
+            if dark_mode:
+                sphere(vec3(x,y,z+13), t*0.2, 2, white)
+                sphere(vec3(x,y,z-13), t*0.2, 2, white)
+            else:
+                sphere(vec3(x,y,z+13), t*0.2, 1, black)
+                sphere(vec3(x,y,z-13), t*0.2, 1, black)
+        else:
+            sphere(vec3(x,y,z), t*0.6, 1, white)
+    for t in range(r): # Make the Taichi logo
+        tt = ti.cast(t, ti.f32) / r * 3.14
+        x = - ti.cast(32 * ti.sin(tt), ti.i32)
+        y = - ti.cast(32 * ti.cos(tt), ti.i32)
+        z = 0. 
+        if t == r-1:
+            sphere(vec3(x,y,z), t*0.6, 1, black)
+            if dark_mode:
+                sphere(vec3(x,y,z+13), t*0.2, 2, white)
+                sphere(vec3(x,y,z-13), t*0.2, 2, white)
+            else:
+                sphere(vec3(x,y,z+13), t*0.2, 1, white)
+                sphere(vec3(x,y,z-13), t*0.2, 1, white)
+        else:
+            sphere(vec3(x,y,z), t*0.6, 1, black)
     wave()
+    if dark_mode:
+        box(vec3(0,-63,0), [120.,1.,120.], 2, [1.,1.,1.])
+    lighting_bulb(3, 32, dark_mode)
 
+    
 initialize_voxels()
 
 scene.finish()

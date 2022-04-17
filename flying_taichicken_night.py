@@ -2,10 +2,10 @@ from scene import Scene
 import taichi as ti
 from taichi.math import *
 
-scene = Scene(exposure=10)
-scene.set_floor(-1, (1.0, 1.0, 1.0)) # height, color
-scene.set_background_color((1, 1, 1))
-scene.set_direction_light((1,1,1), 0.1, (.003, .003, .003)) # direction, noise, color
+scene = Scene(voxel_edges=0, exposure=10)
+scene.set_floor(-1, (1,1,1)) # height, color
+scene.set_background_color((1,1,1))
+# scene.set_direction_light((1,1,1), 0.1, (.01, .01, .01)) # direction, noise, color
 
 @ti.func
 def sphere(pos, r, mat, color): # pos: vec3, r: i32, mat: 0/1, color: list
@@ -69,12 +69,18 @@ def cloud(pos):
 
 
 @ti.func
-def star(pos):
-    box(pos, [1.,1.,1.], 2, [1., 1., 1.])
+def star():
+    for s in range(20):
+        pos = vec3(128*(ti.random()-.5),50+14*ti.random(),128*(ti.random()-.5))
+        box(pos, [1,1,1], 2, [1., 1., 1.])
 
 @ti.func
 def moon(pos):
-    sphere(pos, 8, 2, [.9, .9, .9])
+    sphere(pos, 6, 2, [.2, .2, .08])
+
+@ti.func
+def lighting_floor():
+    box(vec3(0,-64,0), [128.,1.,128.], 2, [1.,1.,1.])
             
 @ti.kernel
 def initialize_voxels():
@@ -93,15 +99,11 @@ def initialize_voxels():
     cloud(vec3(20,28,-55))
     cloud(vec3(-20,10,-55))
 
-    star(vec3(20,60,20))
-    star(vec3(20,60,40))
-    star(vec3(-20,60,20))
-    star(vec3(10,55,20))
-    star(vec3(-20,60,30))        
-
+    star()
     moon(vec3(-50,50,-50))
-    
     wave()
+
+    lighting_floor()
 
 initialize_voxels()
 
