@@ -3,7 +3,7 @@ import taichi as ti
 from taichi.math import *
 
 dark_mode = 0 # 0 for light-mode; 1 for dark-mode
-scene = Scene(exposure=6)
+scene = Scene(exposure=4)
 scene.set_floor(-1, (1., 1., 1.)) # height, color
 scene.set_background_color((1., 1., 1.))
 if dark_mode:

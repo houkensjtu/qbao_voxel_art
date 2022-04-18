@@ -16,7 +16,11 @@ Please fill in your code in `main.py` and include your result in this README.md 
 
 A voxel-art style Taichi logo. Feel free to try out my other prototypes, too!
 ![](./demo-light.jpg)
+![](./demo-light-detail1.jpg)
+![](./demo-light-detail2.jpg)
 ![](./demo-dark.jpg)
+![](./demo-dark-detail2.jpg)
+![](./demo-dark-detail1.jpg)
 
 ## Quickstart
 

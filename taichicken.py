@@ -2,8 +2,8 @@ from scene import Scene
 import taichi as ti
 from taichi.math import *
 
-scene = Scene(exposure=10)
-scene.set_floor(-1, (1.0, 1.0, 1.0)) # height, color
+scene = Scene(voxel_edges=0, exposure=10)
+scene.set_floor(-0.2, (1.0, 1.0, 1.0)) # height, color
 scene.set_background_color((1, 1, 1))
 scene.set_directional_light((1,1,1), 0.1, (.3, .3, .3)) # direction, noise, color
 
@@ -54,7 +54,8 @@ def initialize_voxels():
     # scene.set_voxel(vec3(0, 10, 0), 2, vec3(0.9, 0.1, 0.1))    # idx, mat, color
     for c in range(80):
         pos = vec3((ti.random()-0.5)*120,((ti.random()-0.5)*120),(ti.random()-0.5)*120)
-        chicken(pos)
+        # chicken(pos)
+    chicken(vec3(0,0,0))
 
 initialize_voxels()
 
