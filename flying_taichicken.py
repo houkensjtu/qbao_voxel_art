@@ -2,10 +2,10 @@ from scene import Scene
 import taichi as ti
 from taichi.math import *
 
-scene = Scene(voxel_edges=0, exposure=9)
+scene = Scene(voxel_edges=0, exposure=7)
 scene.set_floor(-1, (1.0, 1.0, 1.0)) # height, color
 scene.set_background_color((1, 1, 1))
-scene.set_directional_light((1,1,1), 0.1, (.3, .3, .3)) # direction, noise, color
+scene.set_directional_light((.8,1,.8), 0.1, (.3, .3, .3)) # direction, noise, color
 
 @ti.func
 def sphere(pos, r, mat, color): # pos: vec3, r: i32, mat: 0/1, color: list
