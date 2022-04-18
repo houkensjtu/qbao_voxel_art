@@ -22,6 +22,12 @@ A voxel-art style Taichi logo. Feel free to try out my other prototypes, too!
 ![](./demo-dark-detail2.jpg)
 ![](./demo-dark-detail1.jpg)
 
+The "Taichicken":
+![](./demo-taichicken2.jpg)
+
+Random spheres:
+![](./demo-random-spheres.jpg)
+
 ## Quickstart
 
 ```sh
